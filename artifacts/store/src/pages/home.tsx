@@ -7,6 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ToolCard } from "@/components/tool-card";
 import { useSiteSettings } from "@/context/siteSettings";
 
+// New Trust Sections
+import { CustomersCounter } from "@/components/CustomersCounter";
+import { TestimonialsSection } from "@/components/TestimonialsSection";
+import { PaymentMethodsSection } from "@/components/PaymentMethodsSection";
+import { AccessScreenshotsSection } from "@/components/AccessScreenshotsSection";
+
 export default function Home() {
   const { data: products, isLoading } = useListProducts();
   const { isSignedIn } = useAuth();
@@ -79,6 +85,30 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* 1. Why Choose Us Strip (Full width light gray bg containing CustomersCounter) */}
+      <section className="bg-gray-50 border-y border-gray-100 py-16 w-full">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-heading font-bold tracking-tight mb-2 uppercase text-foreground">
+              Why Choose <span className="text-primary">Top Rated SEO Tools</span>
+            </h2>
+            <div className="w-16 h-1 bg-accent mx-auto rounded-full"></div>
+          </div>
+          <CustomersCounter />
+        </div>
+      </section>
+
+      {/* 2. Access Screenshots Section (between catalog and testimonials) */}
+      <AccessScreenshotsSection />
+
+      {/* 3. Testimonials Section */}
+      <TestimonialsSection />
+
+      {/* 4. Payment Methods Section (just above footer area) */}
+      <div className="container mx-auto px-4 md:px-6 mt-12 mb-6">
+        <PaymentMethodsSection />
+      </div>
     </Layout>
   );
 }

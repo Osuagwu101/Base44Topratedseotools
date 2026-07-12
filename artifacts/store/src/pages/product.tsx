@@ -7,9 +7,15 @@ import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SiGrammarly, SiNordvpn, SiSemrush } from "react-icons/si";
-import { Check, Video, Bot, Shield, Pencil } from "lucide-react";
+import { Check, Video, Bot, Shield, Pencil, Star } from "lucide-react";
 import { ToolCard } from "@/components/tool-card";
 import { trackViewContent } from "@/lib/analytics";
+
+// New Reviews Section & Summary fetcher hook
+import { ReviewsSection, ReviewSummary } from "@/components/ReviewsSection";
+import { useQuery } from "@tanstack/react-query";
+
+const BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function RecommendationRow({
   title,
@@ -94,6 +100,19 @@ export default function ProductDetail() {
   const { data: allProducts } = useListProducts();
   const { formatPrice, currency, ratesReady } = useCurrency();
 
+  // Fetch Star Rating Summary for the header area
+  const { data: summary } = useQuery<ReviewSummary, Error>({
+    queryKey: ["reviews-summary", productId],
+    queryFn: async () => {
+      const res = await fetch(`${BASE_PATH}/api/trust/reviews/${productId}/summary`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch review summary: ${res.statusText}`);
+      }
+      return res.json();
+    },
+    enabled: !!productId,
+  });
+
   // Fire ViewContent when product data is available.
   // Always report in NGN (the transaction currency) regardless of display currency.
   useEffect(() => {
@@ -155,6 +174,31 @@ export default function ProductDetail() {
           <div className="p-8 md:p-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
               <h1 className="text-4xl md:text-5xl font-heading tracking-tight text-foreground uppercase mb-3">{product.name}</h1>
+              
+              {/* Star Rating Summary Near the Product Title */}
+              {summary && summary.totalCount > 0 && (
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < Math.round(summary.avgRating)
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-gray-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm font-bold text-foreground">
+                    {summary.avgRating.toFixed(1)}
+                  </span>
+                  <span className="text-xs text-muted-foreground font-semibold">
+                    ({summary.totalCount} {summary.totalCount === 1 ? "review" : "reviews"})
+                  </span>
+                </div>
+              )}
+
               <div className="text-xs font-bold text-accent uppercase tracking-widest mb-8 bg-accent/10 py-1.5 px-4 rounded-full inline-block">{product.category}</div>
               
               <p className="text-lg text-muted-foreground leading-relaxed mb-12 font-medium whitespace-pre-line">
@@ -212,39 +256,32 @@ export default function ProductDetail() {
                 
                 <div className="pt-2 border-t border-border space-y-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground font-semibold">
-                    <Check className="w-4 h-4 text-primary shrink-0" strokeWidth={3} />
-                    Instant access after payment
+                    <Check className="w-4 h-4 text-primary" />
+                    <span>Instant automatic setup</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground font-semibold">
-                    <Check className="w-4 h-4 text-primary shrink-0" strokeWidth={3} />
-                    Secured by Paystack
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground font-semibold">
-                    <Check className="w-4 h-4 text-primary shrink-0" strokeWidth={3} />
-                    Cancel anytime
+                    <Check className="w-4 h-4 text-primary" />
+                    <span>24/7 dedicated support</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
+        {/* Reviews Section below the product details */}
+        <ReviewsSection productId={productId} />
+
         <RecommendationRow
-          title="Better alternatives"
-          subtitle="Users who viewed this also considered these upgrades"
-          ids={product.upSellProductIds ?? undefined}
+          title="Similar Tools"
+          subtitle="Other tools in this category you might need"
+          ids={product.similarProductIds}
           allProducts={allProducts}
         />
         <RecommendationRow
-          title="Goes well with"
-          subtitle="Pair this tool with these complementary subscriptions"
-          ids={product.crossSellProductIds ?? undefined}
-          allProducts={allProducts}
-        />
-        <RecommendationRow
-          title="More affordable options"
-          subtitle="Similar tools at a lower price point"
-          ids={product.downSellProductIds ?? undefined}
+          title="Frequently Bought Together"
+          subtitle="Bundled tools commonly bought with this tool"
+          ids={product.frequentlyBoughtTogetherIds}
           allProducts={allProducts}
         />
       </div>

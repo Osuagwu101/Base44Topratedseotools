@@ -6,6 +6,10 @@ import { User, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 import { useCurrency, CURRENCIES } from "@/context/currency";
 import { useSiteSettings } from "@/context/siteSettings";
 
+// New WhatsAppButton & Trust Settings Hooks
+import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { useTrustSettings } from "@/hooks/useTrustSettings";
+
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function CurrencySwitcher() {
@@ -105,6 +109,7 @@ function NavAuth() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { settings } = useSiteSettings();
+  const { data: trustSettings } = useTrustSettings();
 
   const copyrightYear = settings.useDynamicCopyrightYear
     ? String(new Date().getFullYear())
@@ -157,35 +162,56 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
       <footer className="border-t border-border py-12 mt-24 bg-white">
         <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-          <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
-            {settings.siteLogoUrl ? (
-              <img
-                src={settings.siteLogoUrl}
-                alt="Top Rated SEO Tools Logo"
-                className="h-7 w-auto max-w-[140px] object-contain"
-              />
-            ) : (
-              <img
-                src={`${basePath}/logo.png`}
-                alt="Top Rated SEO Tools Logo"
-                className="h-7 w-auto max-w-[140px] object-contain"
-                onError={(e) => {
-                  const img = e.currentTarget;
-                  img.style.display = "none";
-                  const span = document.createElement("span");
-                  span.className = "font-heading text-lg text-primary uppercase tracking-wider";
-                  span.textContent = settings.copyrightText;
-                  img.parentElement?.appendChild(span);
-                }}
-              />
+          <div className="flex flex-col gap-2 items-center md:items-start justify-center md:justify-start">
+            <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
+              {settings.siteLogoUrl ? (
+                <img
+                  src={settings.siteLogoUrl}
+                  alt="Top Rated SEO Tools Logo"
+                  className="h-7 w-auto max-w-[140px] object-contain"
+                />
+              ) : (
+                <img
+                  src={`${basePath}/logo.png`}
+                  alt="Top Rated SEO Tools Logo"
+                  className="h-7 w-auto max-w-[140px] object-contain"
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    img.style.display = "none";
+                    const span = document.createElement("span");
+                    span.className = "font-heading text-lg text-primary uppercase tracking-wider";
+                    span.textContent = settings.copyrightText;
+                    img.parentElement?.appendChild(span);
+                  }}
+                />
+              )}
+              <span className="font-semibold text-muted-foreground ml-2 text-sm">&copy; {copyrightYear}</span>
+            </div>
+
+            {/* Business Email Display */}
+            {trustSettings?.emailEnabled && trustSettings?.businessEmail && (
+              <div className="text-xs font-semibold text-muted-foreground mt-1">
+                {trustSettings.emailOpenApp ? (
+                  <a
+                    href={`mailto:${trustSettings.businessEmail}`}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {trustSettings.businessEmail}
+                  </a>
+                ) : (
+                  <span>{trustSettings.businessEmail}</span>
+                )}
+              </div>
             )}
-            <span className="font-semibold text-muted-foreground ml-2 text-sm">&copy; {copyrightYear}</span>
           </div>
           <p className="text-xs text-muted-foreground max-w-xs md:max-w-sm text-center md:text-right leading-relaxed">
             {settings.paymentFooterText}
           </p>
         </div>
       </footer>
+
+      {/* Floating WhatsApp Button */}
+      <WhatsAppButton />
     </div>
   );
 }

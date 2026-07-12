@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { TrustSupportPanel } from "./trust_support";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +27,15 @@ import {
   Eye,
   EyeOff,
   Save,
+  Star,
+  MessageSquare,
+  BadgeCheck,
+  Smartphone,
+  Landmark,
+  LayoutList,
+  ArrowUp,
+  ArrowDown,
+  HelpCircle,
   ShieldCheck,
   Lock,
   Monitor,
@@ -121,6 +131,81 @@ function formatRelativeTime(iso: string): string {
   if (diffDay < 30) return `${diffDay} day${diffDay === 1 ? "" : "s"} ago`;
   const diffMonth = Math.round(diffDay / 30);
   return `${diffMonth} month${diffMonth === 1 ? "" : "s"} ago`;
+}
+
+
+interface ContactInfoSettings {
+  businessEmail: string;
+  emailEnabled: boolean;
+  emailOpenApp: boolean;
+}
+
+interface WhatsAppSettings {
+  whatsappNumber: string;
+  whatsappMessage: string;
+  whatsappEnabled: boolean;
+}
+
+interface Testimonial {
+  id: string;
+  displayName: string;
+  jobTitle?: string;
+  company?: string;
+  photoUrl?: string;
+  testimonialText: string;
+  rating: number;
+  isSample: boolean;
+  isPublished: boolean;
+  permissionObtained: boolean;
+  isVerified: boolean;
+  verifiedOrderId?: string;
+  sortOrder: number;
+}
+
+interface Review {
+  id: string;
+  customerName: string;
+  productName: string;
+  rating: number;
+  title: string;
+  body: string;
+  status: 'pending' | 'approved' | 'rejected' | 'hidden';
+  createdAt: string;
+  verified: boolean;
+  orderId?: string;
+  adminReply?: string;
+}
+
+interface CustomerCounterState {
+  baseline: number;
+  countMode: 'Unique Customers Served' | 'Successful Orders Completed';
+  verifiedCount: number;
+  lastUpdated: string;
+}
+
+interface CustomerCounterAudit {
+  id: string;
+  date: string;
+  oldValue: number;
+  newValue: number;
+  reason: string;
+}
+
+interface PaymentMethod {
+  id: string;
+  name: string;
+  enabled: boolean;
+  sortOrder: number;
+}
+
+interface AccessScreenshot {
+  id: string;
+  stepNumber: number;
+  caption: string;
+  altText: string;
+  imageUrl: string;
+  isPublished: boolean;
+  sortOrder: number;
 }
 
 interface ClerkUserResult {
@@ -2739,7 +2824,7 @@ export default function AdminPanel() {
   const [products, setProducts] = useState<ProductWithServers[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState<"tools" | "devices" | "users" | "branding" | "analytics">("tools");
+  const [tab, setTab] = useState<"tools" | "devices" | "users" | "branding" | "analytics" | "trust_support">("tools");
   const [addToolOpen, setAddToolOpen] = useState(false);
   const { toast } = useToast();
 
@@ -2906,6 +2991,12 @@ export default function AdminPanel() {
           >
             Analytics
           </button>
+          <button
+            onClick={() => setTab("trust_support")}
+            className={`px-5 py-2 rounded-lg text-sm font-bold transition-colors ${tab === "trust_support" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Trust &amp; Support
+          </button>
         </div>
       </div>
 
@@ -2971,6 +3062,7 @@ export default function AdminPanel() {
         {tab === "branding" && <BrandingPanel token={token} />}
 
         {tab === "analytics" && <AnalyticsPanel token={token} />}
+        {tab === "trust_support" && <TrustSupportPanel token={token} />}
       </main>
 
       <AddToolDialog

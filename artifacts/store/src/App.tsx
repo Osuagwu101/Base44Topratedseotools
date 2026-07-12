@@ -21,6 +21,9 @@ import { initGtm, initPixel, trackPageView, getConsent, setTrackingConfig, type 
 import { captureAttribution } from "@/lib/attribution";
 import { CookieConsent } from "@/components/CookieConsent";
 
+// Review Prompt Modal
+import { ReviewPromptModal } from "@/components/ReviewPromptModal";
+
 // ── Device ID ────────────────────────────────────────────────────────────────
 function getOrCreateDeviceId(): string {
   const key = "subshub_device_id";
@@ -304,6 +307,7 @@ function ClerkProviderWithRoutes() {
           {isSuspended ? <SuspendedScreen /> : <Router />}
           <Toaster />
           <CookieConsent />
+          <ReviewPromptModal />
         </TooltipProvider>
       </QueryClientProvider>
     </ClerkProvider>

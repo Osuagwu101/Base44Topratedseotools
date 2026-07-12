@@ -11,6 +11,7 @@ import storageRouter from "./storage";
 import fxRouter from "./fx";
 import siteSettingsRouter from "./siteSettings";
 import trackingRouter from "./tracking";
+import trustRouter from "./trust";
 import { deviceTrackingMiddleware } from "../middlewares/deviceTracking";
 
 const router: IRouter = Router();
@@ -28,5 +29,6 @@ router.use(usersRouter);
 router.use(adminRouter);
 router.use(autologinRouter);
 router.use(proxyRouter);
+router.use(trustRouter);
 
 export default router;
